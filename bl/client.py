@@ -4,38 +4,32 @@ import common
 from decimal import Decimal
 
 
-def run():
+def run(api_key, api_secret, symbol, amount, side, first_order_percentage, spread, spread_step_size_percentage, dry_mode):
 
-	client = Client('', '')
 
-	symbol = 'BNTBTC'
-	amount = 50
-	side = Client.SIDE_BUY  #BUY/SELL
-	first_order_percentage = 30.0  #first order percentage - market price
-	spread = 7  #how many orders
-	spread_step_size_percentage = 5.0 # percent from previous order (starting with market price)
+	list = ['starting run']
+	
+	client = Client(api_key, api_secret)
 
-	#metadata
-	dryMode = True
-	side_str = 'selling' if side == Client.SIDE_SELL else 'buying'
+	side_str = 'selling' if side == 'SELL' else 'buying'
 
 	account = client.get_account()
 
 	symbol_info = client.get_symbol_ticker(symbol=symbol)
 	market_price = symbol_info['price']
-	print('current market price: ' + market_price)
+	list.append('current market price: ' + market_price)
 
 	precision = common.get_symbol_precision(client, symbol)
 	quantity_first_order = round(Decimal((first_order_percentage/100.0) * amount), precision)
 	quantity_spread = amount - quantity_first_order
 
-	print(side_str + ' ' + str(quantity_first_order) + ' ' + symbol + ' at MARKET price')
-	print(side_str + ' ' + str(quantity_spread) + ' ' + symbol + ' at SPREAD')
+	list.append(side_str + ' ' + str(quantity_first_order) + ' ' + symbol + ' at MARKET price')
+	list.append(side_str + ' ' + str(quantity_spread) + ' ' + symbol + ' at SPREAD')
 
 
 	if (quantity_first_order > 0):
 		#1. Place Market BUY order
-		if not dryMode:
+		if not dry_mode:
 			try:
 				client.create_order(
 			    	symbol=symbol,
@@ -49,10 +43,22 @@ def run():
 	if (quantity_spread > 0):	
 		
 		base = quantity_spread / (spread-1)
+		curr = quantity_spread
+
 		for i in range(1,spread):
 			
 			quantity_spread_i = base - (i * random.uniform(0.01, 0.03))
 			quantity_spread_i_rounded = round(Decimal(quantity_spread_i), precision)
+
+			if i == spread-1:
+				#last cycle - adjust quantity
+				if curr < quantity_spread_i:
+					quantity_spread_i_rounded = round(Decimal(curr), precision)
+				if curr > quantity_spread_i:
+					quantity_spread_i_rounded = round(Decimal(curr), precision)
+
+			curr = curr - quantity_spread_i_rounded
+			print('curr quantity: ' + str(curr))
 
 			price_i = float(market_price) 
 			if side == Client.SIDE_SELL:
@@ -62,9 +68,9 @@ def run():
 
 			price_i_rounded = float("{0:.7f}".format(price_i))
 
-			print(side_str + ' ' + str(quantity_spread_i_rounded) + ' ' + symbol[0:3] + ' at ' + str(price_i_rounded) + ' price')
+			list.append(side_str + ' ' + str(quantity_spread_i_rounded) + ' ' + symbol[0:3] + ' at ' + str(price_i_rounded) + ' price')
 
-			if not dryMode:
+			if not dry_mode:
 				try:
 					client.create_order(
 						symbol=symbol,
@@ -75,6 +81,8 @@ def run():
 						timeInForce=Client.TIME_IN_FORCE_GTC)
 				except Exception as e:
 					print(e)
+
+	return list
 
 
 
