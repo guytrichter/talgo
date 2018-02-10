@@ -52,9 +52,7 @@ def run(api_key, api_secret, symbol, amount, side, first_order_percentage, sprea
 
 			if i == spread-1:
 				#last cycle - adjust quantity
-				if curr < quantity_spread_i:
-					quantity_spread_i_rounded = round(Decimal(curr), precision)
-				if curr > quantity_spread_i:
+				if curr != quantity_spread_i:
 					quantity_spread_i_rounded = round(Decimal(curr), precision)
 
 			curr = curr - quantity_spread_i_rounded
