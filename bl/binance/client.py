@@ -25,6 +25,7 @@ def run(api_key, api_secret, symbol, amount, side, first_order_percentage, sprea
 	list.append(side_str + ' ' + str(quantity_first_order) + ' ' + symbol + ' at MARKET price')
 	list.append(side_str + ' ' + str(quantity_spread) + ' ' + symbol + ' at SPREAD')
 
+
 	if (quantity_first_order > 0):
 		#1. Place Market BUY order
 		if not dry_mode:		
