@@ -78,5 +78,5 @@ def internal_server_error(message):
     return response
 
 
-if __name__ == '__main__':
-	app.run(debug=True, host='127.0.0.1')#, ssl_context='adhoc')
+#if __name__ == '__main__':
+#	app.run(debug=True, host='127.0.0.1')#, ssl_context='adhoc')
