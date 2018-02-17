@@ -1,5 +1,5 @@
 from flask import Flask,render_template,make_response,request,abort,jsonify
-from bl.bncclient import spread_order, get_account_balances
+from bl.bncclient import spread_order, get_account_balances, get_all_tickers
 
 app = Flask(__name__)
 
@@ -7,8 +7,23 @@ app = Flask(__name__)
 def index():
 	return render_template('index.html')
 
+@app.route('/binance/tickers',  methods=['POST'])
+def get_all_tickers_bnc():
+	
+	if not request.json:
+		abort(400)
+
+	api_key= request.json['api_key']
+	api_secret = request.json['api_secret']
+	try:
+		return_log = get_all_tickers(api_key, api_secret)
+		return valid_response(return_log)
+	except Exception as e:
+		return internal_server_error(e.message)  #status code 500
+
 @app.route('/binance/account/balance',  methods=['POST'])
 def binance_balances():
+	
 	if not request.json:
 		abort(400)
 

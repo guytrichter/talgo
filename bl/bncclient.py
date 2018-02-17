@@ -3,6 +3,11 @@ import random
 import common
 from decimal import Decimal
 
+def get_all_tickers(api_key, api_secret):
+	client = Client(api_key, api_secret)
+	tickers = client.get_all_tickers()
+	return filter(lambda t: float(t['symbol'][-3:] == 'BTC'), tickers)
+
 
 def get_account_balances(api_key, api_secret):
 	client = Client(api_key, api_secret)
