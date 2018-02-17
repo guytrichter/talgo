@@ -1,11 +1,24 @@
 from flask import Flask,render_template,make_response,request,abort,jsonify
-from bl.bncclient import run as binance_spread_order
+from bl.bncclient import spread_order, get_account_balances
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
 	return render_template('index.html')
+
+@app.route('/binance/account/balance',  methods=['POST'])
+def binance_balances():
+	if not request.json:
+		abort(400)
+
+	api_key= request.json['api_key']
+	api_secret = request.json['api_secret']
+	try:
+		return_log = get_account_balances(api_key, api_secret)
+		return valid_response(return_log)
+	except Exception as e:
+		return internal_server_error(e.message)  #status code 500
 
 @app.route('/binance/spread', methods=['POST'])
 def binanace_spread_order():
@@ -24,7 +37,7 @@ def binanace_spread_order():
 	dry_mode = request.json['dry_mode']
 
 	try:
-		return_log = binance_spread_order(
+		return_log = spread_order(
 			api_key=api_key,
 			api_secret = api_secret,
 			symbol = symbol,

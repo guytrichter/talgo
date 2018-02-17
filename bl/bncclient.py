@@ -4,7 +4,14 @@ import common
 from decimal import Decimal
 
 
-def run(api_key, api_secret, symbol, amount, side, first_order_percentage, spread, spread_step_size_percentage, dry_mode):
+def get_account_balances(api_key, api_secret):
+	client = Client(api_key, api_secret)
+	account = client.get_account()
+	balances = account['balances']
+	return filter(lambda bl:  float(bl['free']) > 0.0, balances)
+
+
+def spread_order(api_key, api_secret, symbol, amount, side, first_order_percentage, spread, spread_step_size_percentage, dry_mode):
 
 	list = ['starting run']
 	
