@@ -1,5 +1,5 @@
 from flask import Flask,render_template,make_response,request,abort,jsonify
-from bl.binance.client import run as binance_spread_order
+from bl.bncclient import run as binance_spread_order
 
 app = Flask(__name__)
 
